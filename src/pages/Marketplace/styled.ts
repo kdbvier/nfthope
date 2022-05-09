@@ -6,12 +6,13 @@ export const Wrapper = styled.div`
 `;
 
 export const BackgroundWrapper = styled.div`
-  background: url("/others/cosmo.jpg");
-  background-size: 100% 300px;
+  --image-height: 400px;
+  background: url("/others/background.png");
+  background-size: 100% var(--image-height);
   background-color: white;
   background-repeat: no-repeat;
   width: 100%;
-  height: 400px;
+  height: calc(var(--image-height) + 100px);
   display: flex;
   justify-content: center;
   align-items: end;
