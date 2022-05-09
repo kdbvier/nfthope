@@ -66,7 +66,7 @@ export default function NFTItem({ item, status }: NFTItemProps) {
           msg: btoa(
             JSON.stringify({
               list_price: {
-                denom: nftPriceType === NFTPriceType.HOPE ? "hope" : "ujunox",
+                denom: nftPriceType === NFTPriceType.HOPE ? "hope" : "ujuno",
                 amount: `${price * 1e6}`,
               },
             })
