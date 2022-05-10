@@ -7,9 +7,13 @@ import { ToastContainer } from "react-toastify";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Main from "./pages/Main";
-import { useAppDispatch, useAppSelector } from "./app/hooks";
-import { deleteAccount } from "./features/accounts/accountsSlice";
+// import {
+//   //  useAppDispatch,
+//   useAppSelector,
+// } from "./app/hooks";
+// import { deleteAccount } from "./features/accounts/accountsSlice";
 import useContract from "./hook/useContract";
+// import useFetch from "./hook/useFetch";
 
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -20,16 +24,23 @@ setBasePath(
   "https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.64/dist/"
 );
 function App() {
-  const dispatch = useAppDispatch();
-  const account = useAppSelector((state) => state.accounts.keplrAccount);
+  // const dispatch = useAppDispatch();
+  // const account = useAppSelector((state) => state.accounts.keplrAccount);
   const { initContracts } = useContract();
+  // const { fetchAllNFTs } = useFetch();
   useEffect(() => {
     // remove existing account
-    if (account) {
-      dispatch(deleteAccount(account.address));
-    }
+    // if (account) {
+    //   dispatch(deleteAccount(account.address));
+    // }
     // import target contracts
     initContracts();
+    // if (account) {
+    //   setInterval(() => {
+    //     fetchAllNFTs();
+    //   }, 5000);
+    // }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
