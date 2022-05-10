@@ -56,6 +56,7 @@ const useContract = () => {
     async (contractAddress: string, queryMsg: any) => {
       const contract = state.accounts.accountList[contractAddress];
       if (!contract) {
+        dispatch(importContract(contractAddress));
         throw new Error(`No contract selected - ${contractAddress}`);
       }
       const client = await connectionManager.getQueryClient(
@@ -83,6 +84,7 @@ const useContract = () => {
       const contract = state.accounts.accountList[contractAddress];
       const account = state.accounts.keplrAccount;
       if (!contract) {
+        dispatch(importContract(contractAddress));
         throw new Error("No contract selected");
       }
 
