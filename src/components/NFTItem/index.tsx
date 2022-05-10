@@ -140,7 +140,6 @@ export default function NFTItem({ item, status }: NFTItemProps) {
 
   const handleChangePriceType = (e: any) => {
     const { value } = e.target;
-    console.log("clicked", item.token_id, "-", value);
     setNftPriceType(value);
   };
 
