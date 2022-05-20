@@ -16,7 +16,7 @@ const ExploreMarketplace: React.FC = () => {
             history.push("/collections/hopegalaxy1");
           }}
         >
-          <StyledImg src={collection} alt="collection" />
+          <StyledImg src={mintpass} alt="collection" />
           <Text>Hope Galaxy NFT - Collection 1</Text>
         </Card>
         <Card
@@ -24,7 +24,7 @@ const ExploreMarketplace: React.FC = () => {
             history.push("/collections/mintpass1");
           }}
         >
-          <StyledImg src={mintpass} alt="mintpass" />
+          <StyledImg src={collection} alt="mintpass" />
           <Text>Hope Galaxy Mint Pass 1</Text>
         </Card>
       </Flex>

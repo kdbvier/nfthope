@@ -25,7 +25,7 @@ export const StyledImg = styled.img`
 `
 
 export const Text = styled.div`
-  margin: 10px 0;
+  margin: 40px 0;
   font-size: 20px;
   font-weight: bold;
 `
