@@ -32,7 +32,7 @@ import {
 const HeaderLinks = [
   {
     title: "Explore",
-    url: "/collections/mintpass1",
+    url: "/collections/explore",
   },
   { title: "Launchpad", url: "http://launchpad.hopers.io/" },
   { title: "Create", url: "" },

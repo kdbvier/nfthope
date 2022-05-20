@@ -15,11 +15,14 @@ const NFTItemDetail: React.FC = () => {
   const account = useAppSelector((state) => state.accounts.keplrAccount);
   const owner = selectedNFT.seller || account?.address || "";
   const price = selectedNFT.list_price || {};
+  const url = selectedNFT.token_id.includes("Hope")
+    ? "videos/video1.mp4"
+    : "videos/video2.mp4";
   return (
     <Wrapper>
       <MintVideoContainer>
         <MintVideo autoPlay loop id="video">
-          <source src="videos/video1.mp4"></source>
+          <source src={url}></source>
         </MintVideo>
       </MintVideoContainer>
       <NFTDetailContainer>

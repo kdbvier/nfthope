@@ -38,7 +38,11 @@ const Marketplace: React.FC = () => {
   const history = useHistory();
   const account = useAppSelector((state) => state.accounts.keplrAccount);
   const marketplaceNFTs = useAppSelector((state) => state.nfts.marketplaceNFTs);
-
+  const hopeMarketplaceNFTs: any = [];
+  marketplaceNFTs.forEach((item: any) => {
+    if (item.token_id.includes("Hope")) hopeMarketplaceNFTs.push(item);
+  });
+  console.log("revealMarketplaceNFTs: ", hopeMarketplaceNFTs);
   useEffect(() => {
     if (account && account.address) {
       fetchListedNFTs();
@@ -63,7 +67,7 @@ const Marketplace: React.FC = () => {
       </BackgroundWrapper>
       <Title title="Mint Pass Hope Galaxy NFT - Collection 1" />
       <HorizontalDivider />
-      <NFTContainer nfts={marketplaceNFTs} status={NFTItemStatus.BUY} />
+      <NFTContainer nfts={hopeMarketplaceNFTs} status={NFTItemStatus.BUY} />
     </Wrapper>
   );
 };
