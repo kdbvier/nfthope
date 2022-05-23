@@ -26,3 +26,8 @@ export const DetailTitle = styled.div`
 export const DetailContent = styled.div`
   margin-bottom: 10px;
 `;
+export const NFTItemImage = styled.img`
+  cursor: pointer;
+  height: 300px;
+  border-radius: 30px;
+`;

@@ -13,6 +13,7 @@ import {
   HopeLogoIcon,
   SocialLinkContainer,
   SocialLinkItem,
+  StyledButton,
 } from "./styled";
 
 const SocialLinkItems = [
@@ -37,12 +38,16 @@ const HopeMarketplace: React.FC = () => {
   const { fetchListedNFTs } = useFetch();
   const history = useHistory();
   const account = useAppSelector((state) => state.accounts.keplrAccount);
+  const [isAscending, setIsAscending] = React.useState(true);
   const marketplaceNFTs = useAppSelector((state) => state.nfts.marketplaceNFTs);
   const revealMarketplaceNFTs: any = [];
   marketplaceNFTs.forEach((item: any) => {
     if (item.token_id.includes("Reveal")) revealMarketplaceNFTs.push(item);
   });
   console.log("revealMarketplaceNFTs: ", revealMarketplaceNFTs);
+  const handleSort = () => {
+    setIsAscending(!isAscending);
+  };
   useEffect(() => {
     if (account && account.address) {
       fetchListedNFTs();
@@ -65,8 +70,19 @@ const HopeMarketplace: React.FC = () => {
           ))}
         </SocialLinkContainer>
       </BackgroundWrapper>
-      <Title title="Mint Pass Hope Galaxy NFT - Collection 1" />
+      <Title title="Hope Galaxy NFT - Collection 1" />
       <HorizontalDivider />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          margin: "0 200px",
+        }}
+      >
+        <StyledButton onClick={handleSort}>
+          Sort By Price {!isAscending ? "Ascending" : "Descending"}
+        </StyledButton>
+      </div>
       <NFTContainer nfts={revealMarketplaceNFTs} status={NFTItemStatus.BUY} />
     </Wrapper>
   );
