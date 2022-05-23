@@ -51,7 +51,7 @@ const Footer: React.FC = () => {
       </FooterInfo>
       <FooterInfo>
         <FooterDocIcon
-          onClick={() => openNewUrl("https://hope-galaxy.gitbook.io/docs/")}
+          onClick={() => openNewUrl("https://hopers-io.gitbook.io/docs/")}
         >
           Docs
         </FooterDocIcon>
