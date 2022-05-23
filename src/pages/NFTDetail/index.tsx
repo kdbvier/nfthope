@@ -182,7 +182,7 @@ const NFTDetail: React.FC = () => {
           {status} Now
         </NFTItemOperationButton>
         {status === "Sell" && (
-          <>
+          <div style={{ display: "flex" }}>
             <NFTItemPriceInputer
               width="200px"
               key={selectedNFT.token_id}
@@ -209,7 +209,7 @@ const NFTDetail: React.FC = () => {
               <label htmlFor={`juno-${selectedNFT.token_id}`}>JUNO</label>
               <br />
             </NFTItemPriceType>
-          </>
+          </div>
         )}
       </NFTItemOperationContainer>
       {status === "Sell" && (

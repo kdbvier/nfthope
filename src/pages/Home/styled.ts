@@ -6,6 +6,10 @@ export const Wrapper = styled.div`
   width: 80%;
   justify-content: center;
   margin:0 auto;
+  @media (max-width: 650px) {
+    width: 100%;
+    flex-direction: column;
+  }
 `;
 
 export const SubWrapper = styled.div`
@@ -18,6 +22,10 @@ export const SubWrapper = styled.div`
 export const ImgWrapper = styled.img`
   height: 550px;
   width: 550px;
+  @media (max-width: 650px) {
+    width: 100%;
+    height: 100%;
+  }
 `
 
 export const StyledButton = styled.button`

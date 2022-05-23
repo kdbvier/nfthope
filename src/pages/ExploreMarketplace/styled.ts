@@ -2,6 +2,9 @@ import styled from "styled-components";
 
 export const Wrapper = styled.div`
   margin: 0 300px;
+  @media (max-width: 650px) {
+    margin: 0 10px;
+  }
 `;
 
 export const Card = styled.div`
@@ -11,11 +14,19 @@ export const Card = styled.div`
   height: 400px;
   position: relative;
   overflow: hidden;
+  @media (max-width: 650px) {
+    width: 100%;
+    margin: 10px;
+    }
+
 `
 
 export const Flex = styled.div`
   display: flex;
   justify-content: space-around;
+  @media (max-width: 650px) {
+    flex-direction: column;
+  }
 `
 
 export const StyledImg = styled.img`

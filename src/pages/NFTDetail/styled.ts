@@ -2,11 +2,17 @@ import styled from "styled-components";
 
 export const Wrapper = styled.div`
   margin: 0 300px;
+  @media (max-width: 650px) {
+    margin: 10px;
+  }
 `;
 export const NFTItemOperationContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  @media (max-width: 650px) {
+    flex-direction: column-reverse;
+  }
 `;
 
 export const NFTItemOperationButton = styled.div`
