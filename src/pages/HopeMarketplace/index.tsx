@@ -44,7 +44,6 @@ const HopeMarketplace: React.FC = () => {
   marketplaceNFTs.forEach((item: any) => {
     if (item.token_id.includes("Reveal")) revealMarketplaceNFTs.push(item);
   });
-  console.log("revealMarketplaceNFTs: ", revealMarketplaceNFTs);
   const handleSort = () => {
     setIsAscending(!isAscending);
   };
@@ -60,7 +59,6 @@ const HopeMarketplace: React.FC = () => {
         <SocialLinkContainer>
           {SocialLinkItems.map((linkItem, linkIndex) => (
             <SocialLinkItem
-              // onClick={() => history.push(linkItem.url)}
               onClick={() => window.open(linkItem.url)}
               key={linkIndex}
               backgroundColor={linkItem.backgroundColor}
@@ -83,7 +81,11 @@ const HopeMarketplace: React.FC = () => {
           Sort By Price {!isAscending ? "Ascending" : "Descending"}
         </StyledButton>
       </div>
-      <NFTContainer nfts={revealMarketplaceNFTs} status={NFTItemStatus.BUY} />
+      <NFTContainer
+        nfts={revealMarketplaceNFTs}
+        status={NFTItemStatus.BUY}
+        sort={isAscending ? "as" : "des"}
+      />
     </Wrapper>
   );
 };
