@@ -36,7 +36,7 @@ jobs:
         if: ${{ steps.project.outputs.deployment-enabled == 'true' }}
         uses: actions/setup-node@v1
         with:
-          node-version: v16.x
+          node-version: v14.17.5
 
       - name: Build Node assets
         env:
@@ -55,5 +55,5 @@ jobs:
           branch-id: ${{ steps.project.outputs.branch-id }}
           service-host: api-eu.ionos.space
           api-key: ${{ secrets.IONOS_API_KEY }}
-          dist-folder: public
+          dist-folder: build
           runtime-placeholder-files: ${{ steps.template.outputs.runtime-placeholder-files }}
