@@ -10,9 +10,6 @@ on:
 jobs:
   deploy-now:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - name: Fetch project data
         uses: ionos-deploy-now/retrieve-project-info-action@v1
@@ -26,7 +23,7 @@ jobs:
         if: ${{ steps.project.outputs.deployment-enabled == 'true' }}
         uses: actions/checkout@v2
         with:
-          submodules: "recursive"
+          submodules: 'recursive'
 
       - name: Render templates
         if: ${{ steps.project.outputs.deployment-enabled == 'true' }}
@@ -39,7 +36,7 @@ jobs:
         if: ${{ steps.project.outputs.deployment-enabled == 'true' }}
         uses: actions/setup-node@v1
         with:
-          node-version: v16.x
+          node-version: v14.17.5
 
       - name: Build Node assets
         env:
