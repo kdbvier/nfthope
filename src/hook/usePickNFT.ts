@@ -16,6 +16,7 @@ const usePickNFT = () => {
       for (let i = 0; i < totalNFTs.length; i++) {
         const crrNFT: any = totalNFTs[i];
         if (crrNFT.token_id === id) {
+          console.log("pickNFTByTokenId", crrNFT);
           targetNFT = crrNFT;
           break;
         }
