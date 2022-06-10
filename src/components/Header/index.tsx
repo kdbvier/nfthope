@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import Collections from "../../constants/Collections";
 import { setKeplrAccount } from "../../features/accounts/accountsSlice";
 import { useKeplr } from "../../features/accounts/useKeplr";
-import {
-  setListedNFTs,
-  setMarketplaceNFTs,
-  setUnlistedNFTs,
-} from "../../features/nfts/nftsSlice";
+import { setNFTs } from "../../features/nfts/nftsSlice";
 import useContract from "../../hook/useContract";
 import useFetch from "../../hook/useFetch";
 import useOnClickOutside from "../../hook/useOnClickOutside";
 import useWindowSize from "../../hook/useWindowSize";
 import { ListIcon } from "../Icons";
+import { MarketplaceInfo } from "../../constants/Collections";
 import {
   HeaderWrapper,
   LogoContainer,
@@ -35,12 +33,12 @@ const HeaderLinks = [
     url: "/collections/explore",
   },
   { title: "Launchpad", url: "http://launchpad.hopers.io/" },
-  { title: "Create", url: "" },
+  { title: "Mint", url: "/collections/mint" },
 ];
 
 const Header: React.FC = () => {
   const [isOpenMenu, setIsOpenMenu] = useState(false);
-  const [runningFetch, setRunningFetch] = useState(false);
+  // const [runningFetch, setRunningFetch] = useState(false);
   const [ref, setRef] = useState<HTMLDivElement | null>(null); // TODO: must use useRef
   const dispatch = useAppDispatch();
   const account = useAppSelector((state) => state.accounts.keplrAccount);
@@ -52,8 +50,8 @@ const Header: React.FC = () => {
   const { isMobile } = useWindowSize(900);
 
   useEffect(() => {
-    if (account && !runningFetch) {
-      setRunningFetch(true);
+    if (account) {
+      // setRunningFetch(true);
       initContracts();
       setInterval(() => {
         fetchAllNFTs();
@@ -67,9 +65,9 @@ const Header: React.FC = () => {
       connect();
     } else {
       dispatch(setKeplrAccount());
-      dispatch(setListedNFTs([]));
-      dispatch(setUnlistedNFTs([]));
-      dispatch(setMarketplaceNFTs([]));
+      Collections.forEach((collection: MarketplaceInfo) =>
+        setNFTs([collection.collectionId, []])
+      );
     }
   };
 
@@ -96,7 +94,7 @@ const Header: React.FC = () => {
     <HeaderWrapper>
       <LogoContainer>
         <HeaderLogo onClick={() => handleClickLink("/")} />
-        Hopers.io
+        {/* Hopers.io */}
       </LogoContainer>
       {isMobile ? (
         <MenuIconContainer ref={(node) => setRef(node)}>

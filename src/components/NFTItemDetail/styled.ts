@@ -1,21 +1,10 @@
-import styled from "styled-components";
-
-export const Wrapper = styled.div`
-  display: flex;
-  width: 100%;
-  @media (max-width: 650px) {
-    width: 100%;
-    flex-direction: column;
-  }
-`;
+import styled, { css } from "styled-components";
 
 export const MintVideoContainer = styled.div`
-  width: 40%;
+  width: 200px;
+  height: 300px;
   margin-right: 30px;
-  @media (max-width: 650px) {
-  width: 80%;
-  margin: 30px;
-  }
+  position: relative;
 `;
 
 export const MintVideo = styled.video`
@@ -25,9 +14,6 @@ export const MintVideo = styled.video`
 export const NFTDetailContainer = styled.div`
   text-align: left;
   font-size: 20px;
-  @media (max-width: 650px) {
-    margin: 30px;
-  }
 `;
 
 export const DetailTitle = styled.div`
@@ -36,10 +22,37 @@ export const DetailTitle = styled.div`
 
 export const DetailContent = styled.div`
   margin-bottom: 10px;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 `;
+
 export const NFTItemImage = styled.img`
   cursor: pointer;
   height: 300px;
   border-radius: 30px;
+`;
+
+export const Wrapper = styled.div<{ isMobile: boolean }>`
+  display: grid;
+  grid-template-columns: 230px auto;
+  ${({ isMobile }) =>
+    isMobile &&
+    css`
+      grid-template-columns: auto;
+      justify-items: center;
+      ${MintVideoContainer} {
+        margin: 0;
+        width: 300px;
+        margin-bottom: 10px;
+      }
+      ${NFTDetailContainer} {
+        margin: 10px;
+      }
+    `}
+`;
+
+export const NFTItemImageDownloadIcon = styled.svg`
+  position: absolute;
+  right: 7px;
+  top: 10px;
+  cursor: pointer;
 `;

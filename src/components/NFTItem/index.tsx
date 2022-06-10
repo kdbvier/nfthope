@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { toast } from "react-toastify";
+import { useAppSelector } from "../../app/hooks";
+import { getCollectionById } from "../../constants/Collections";
+import { CollectionStateType } from "../../features/collections/collectionsSlice";
 // import { useAppDispatch } from "../../app/hooks";
 // import { setSelectedNFT } from "../../features/nfts/nftsSlice";
-import useContract, { contractAddresses } from "../../hook/useContract";
-import useFetch from "../../hook/useFetch";
+import useHandleNftItem, { NFTPriceType } from "../../hook/useHandleNftItem";
+import useMatchBreakpoints from "../../hook/useMatchBreakpoints";
+import Image from "../Image";
 
 import {
-  NFTItemImage,
+  NFTItemImageWrapper,
   NFTItemInfoContainer,
   NFTItemWrapper,
   NFTItemInfo,
@@ -15,11 +18,13 @@ import {
   NFTItemOperationContainer,
   NFTItemPriceInputer,
   NFTItemPriceType,
+  CoinIcon,
 } from "./styled";
 
 export interface NFTItemProps {
   item: any;
   status: string;
+  enableDownloadImage?: boolean;
 }
 
 export const NFTItemStatus = {
@@ -28,131 +33,45 @@ export const NFTItemStatus = {
   WITHDRAW: "withdraw",
 };
 
-export const NFTPriceType = {
-  HOPE: "hope",
-  JUNO: "juno",
+const getTokenIdNumber = (id: string): string => {
+  if (!id) return "";
+  return id.split(".").pop() || "";
 };
 
 export default function NFTItem({ item, status }: NFTItemProps) {
   const [nftPrice, setNftPrice] = useState("");
   const [nftPriceType, setNftPriceType] = useState("");
-  const { runExecute } = useContract();
-  const { fetchAllNFTs } = useFetch();
+
+  const { isXs, isSm } = useMatchBreakpoints();
+  const isMobile = isXs || isSm;
+
+  const targetCollection = getCollectionById(item.collectionId);
+  const collectionState: CollectionStateType = useAppSelector(
+    (state: any) => state.collectionStates[item.collectionId]
+  );
+
+  const { sellNft, withdrawNft, buyNft } = useHandleNftItem();
   // const dispatch = useAppDispatch();
   const history = useHistory();
   const price = item?.list_price || {};
-  const url = item.token_id.includes("Reveal")
-    ? `https://hopegalaxy.mypinata.cloud/ipfs/QmP7jDG2k92Y7cmpa7iz2vhFG1xp7DNss7vuwUpNaDd7xf/${item.token_id.replace(
-        "Reveal.",
-        ""
-      )}.png`
-    : "/others/mint_pass.png";
+  let url = "";
+  if (item.collectionId === "mintpass1") {
+    url = "/others/mint_pass.png";
+  } else if (item.collectionId === "hopegalaxy1") {
+    url = `https://hopegalaxy.mypinata.cloud/ipfs/QmP7jDG2k92Y7cmpa7iz2vhFG1xp7DNss7vuwUpNaDd7xf/${getTokenIdNumber(
+      item.token_id
+    )}.png`;
+  } else if (collectionState.imageUrl) {
+    url = `${collectionState.imageUrl}${getTokenIdNumber(item.token_id)}.png`;
+  }
+
   const handleNFTItem = async () => {
     if (status === NFTItemStatus.SELL) {
-      const regExp = /^(\d+(\.\d+)?)$/;
-      const price = +nftPrice;
-      if (!(price > 0 && regExp.test(nftPrice))) {
-        toast.error("Invalid Price!");
-        return;
-      }
-      if (!nftPriceType) {
-        toast.error("Select Price Type!");
-        return;
-      }
-      if (nftPriceType === NFTPriceType.HOPE && price < 1) {
-        toast.error("Insufficient Price!");
-        return;
-      }
-      const message = {
-        send_nft: {
-          contract: item.token_id.includes("Hope")
-            ? contractAddresses.MARKET_CONTRACT
-            : contractAddresses.MARKET_REVEAL_CONTRACT,
-          token_id: item.token_id,
-          msg: btoa(
-            JSON.stringify({
-              list_price: {
-                denom: nftPriceType === NFTPriceType.HOPE ? "hope" : "ujuno",
-                amount: `${price * 1e6}`,
-              },
-            })
-          ),
-        },
-      };
-      try {
-        await runExecute(
-          item.token_id.includes("Hope")
-            ? contractAddresses.NFT_CONTRACT
-            : contractAddresses.REVEAL_NFT_CONTRACT,
-          message
-        );
-        toast.success("Success!");
-        fetchAllNFTs();
-      } catch (err) {
-        console.error(err);
-        toast.error("Fail!");
-      }
+      await sellNft(item, nftPrice, nftPriceType);
     } else if (status === NFTItemStatus.WITHDRAW) {
-      const message = {
-        withdraw_nft: {
-          offering_id: item.id,
-        },
-      };
-      try {
-        await runExecute(
-          item.token_id.includes("Hope")
-            ? contractAddresses.MARKET_CONTRACT
-            : contractAddresses.MARKET_REVEAL_CONTRACT,
-          message
-        );
-        toast.success("Success!");
-        fetchAllNFTs();
-      } catch (err) {
-        console.error(err);
-        toast.error("Fail!");
-      }
+      await withdrawNft(item);
     } else if (status === NFTItemStatus.BUY) {
-      const price = item?.list_price || {};
-      const message =
-        price.denom === NFTPriceType.HOPE
-          ? {
-              send: {
-                contract: item.token_id.includes("Hope")
-                  ? contractAddresses.MARKET_CONTRACT
-                  : contractAddresses.MARKET_REVEAL_CONTRACT,
-                amount: price.amount,
-                msg: btoa(
-                  JSON.stringify({
-                    offering_id: item.id,
-                  })
-                ),
-              },
-            }
-          : {
-              buy_nft: {
-                offering_id: item.id,
-              },
-            };
-      try {
-        if (price.denom === NFTPriceType.HOPE) {
-          await runExecute(contractAddresses.TOKEN_CONTRACT, message);
-        } else {
-          await runExecute(
-            item.token_id.includes("Hope")
-              ? contractAddresses.MARKET_CONTRACT
-              : contractAddresses.MARKET_REVEAL_CONTRACT,
-            message,
-            {
-              funds: "" + price.amount / 1e6,
-            }
-          );
-        }
-        toast.success("Success!");
-        fetchAllNFTs();
-      } catch (err) {
-        console.error(err);
-        toast.error("Fail!");
-      }
+      await buyNft(item);
     }
   };
 
@@ -172,27 +91,40 @@ export default function NFTItem({ item, status }: NFTItemProps) {
     history.push(`/detail?token_id=${item.token_id}`);
   };
 
+  const isSellItem = status === NFTItemStatus.SELL;
+
   return (
     <NFTItemWrapper>
-      <NFTItemImage onClick={handleGotoDetail} alt="" src={url} />
-      <NFTItemInfoContainer>
-        <div>
-          <NFTItemInfo>Hope Galaxy 1 </NFTItemInfo>
+      <NFTItemImageWrapper onClick={handleGotoDetail} isMobile={isMobile}>
+        <Image alt="" src={url} />
+      </NFTItemImageWrapper>
+      <div>
+        <NFTItemInfo>{targetCollection.title}</NFTItemInfo>
+        <NFTItemInfoContainer>
           <NFTItemInfo>{item.token_id}</NFTItemInfo>
-        </div>
-        <NFTItemInfo>
-          {!!price.amount && +price.amount > 0
-            ? `${price.amount / 1e6} ${
-                price.denom === NFTPriceType.HOPE ? "HOPE" : "JUNO"
-              }`
-            : ""}
-        </NFTItemInfo>
-      </NFTItemInfoContainer>
-      <NFTItemOperationContainer>
+          <NFTItemInfo>
+            {!!price.amount && +price.amount > 0 ? (
+              <>
+                <CoinIcon
+                  alt=""
+                  src={
+                    price.denom === NFTPriceType.HOPE
+                      ? "/coin-images/hope.png"
+                      : "/coin-images/juno.png"
+                  }
+                />
+                {price.amount / 1e6}
+              </>
+            ) : null}
+          </NFTItemInfo>
+        </NFTItemInfoContainer>
+      </div>
+
+      <NFTItemOperationContainer isSellItem={isSellItem}>
         <NFTItemOperationButton onClick={handleNFTItem}>
           {status} Now
         </NFTItemOperationButton>
-        {status === NFTItemStatus.SELL && (
+        {isSellItem && (
           <>
             <NFTItemPriceInputer
               key={item.token_id}

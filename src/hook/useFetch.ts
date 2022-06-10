@@ -1,117 +1,107 @@
 import { useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
+import Collections, { MarketplaceInfo } from "../constants/Collections";
 import {
-  setUnlistedNFTs,
-  setListedNFTs,
-  setMarketplaceNFTs,
-} from "../features/nfts/nftsSlice";
-import useContract, { contractAddresses } from "./useContract";
+  CollectionStateType,
+  setCollectionState,
+} from "../features/collections/collectionsSlice";
+import { setNFTs } from "../features/nfts/nftsSlice";
+import useContract from "./useContract";
 
 const useFetch = () => {
   const { runQuery } = useContract();
   const dispatch = useAppDispatch();
   const account = useAppSelector((state) => state.accounts.keplrAccount);
-  const nftContract = useAppSelector(
-    (state) => state.accounts.accountList[contractAddresses.NFT_CONTRACT]
-  );
-  const marketContract = useAppSelector(
-    (state) => state.accounts.accountList[contractAddresses.MARKET_CONTRACT]
-  );
-  const revealNftContract = useAppSelector(
-    (state) => state.accounts.accountList[contractAddresses.REVEAL_NFT_CONTRACT]
-  );
-  const revealMarketContract = useAppSelector(
-    (state) =>
-      state.accounts.accountList[contractAddresses.MARKET_REVEAL_CONTRACT]
-  );
 
-  const fetchUnlistedNFTs = useCallback(async () => {
-    if (!account || !nftContract) return;
-    // const result = await runQuery(contractAddresses.NFT_CONTRACT, {
-    //   tokens: {
-    //     owner: account?.address,
-    //     start_after: undefined,
-    //     limit: undefined,
-    //   },
-    // });
-    const result = await runQuery(nftContract, {
-      tokens: {
-        owner: account?.address,
-        start_after: undefined,
-        limit: undefined,
-      },
-    });
-    const revealResult = await runQuery(revealNftContract, {
-      tokens: {
-        owner: account?.address,
-        start_after: undefined,
-        limit: undefined,
-      },
-    });
-    let totalResult: any = [...result.tokens, ...revealResult.tokens];
-    let unlistedNFTs = [];
-    if (totalResult?.length > 0) {
-      unlistedNFTs = totalResult.map((item: string) => ({
-        token_id: item,
-      }));
-    }
-    dispatch(setUnlistedNFTs(unlistedNFTs));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, runQuery, dispatch]);
-
-  const fetchListedNFTs = useCallback(async () => {
-    if (!account || !marketContract) return;
-    // const result = await runQuery(contractAddresses.MARKET_CONTRACT, {
-    //   get_offerings: {},
-    // });
-    const result = await runQuery(marketContract, {
-      get_offerings: {},
-    });
-    const revealResult = await runQuery(revealMarketContract, {
-      get_offerings: {},
-    });
-    let listedNFTs: any = [],
-      marketplaceNFTs: any = [];
-    if (result?.offerings?.length > 0) {
-      result.offerings.map((item: any) => {
-        if (item.seller === account?.address) {
-          listedNFTs.push(item);
-        } else {
-          marketplaceNFTs.push(item);
-        }
-        return null;
-      });
-    }
-    if (revealResult?.offerings?.length > 0) {
-      revealResult.offerings.map((item: any) => {
-        if (item.seller === account?.address) {
-          listedNFTs.push(item);
-        } else {
-          marketplaceNFTs.push(item);
-        }
-        return null;
-      });
-    }
-    dispatch(setListedNFTs(listedNFTs));
-    dispatch(setMarketplaceNFTs(marketplaceNFTs));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [runQuery, account, dispatch]);
+  const contracts = useAppSelector((state) => state.accounts.accountList);
 
   const fetchAllNFTs = useCallback(() => {
-    // console.log(
-    //   "nftContract",
-    //   !!nftContract,
-    //   "marketContract",
-    //   !!marketContract
-    // );
-    fetchUnlistedNFTs();
-    fetchListedNFTs();
+    Collections.forEach(async (collection: MarketplaceInfo) => {
+      // console.log("collection", collection.collectionId);
+      if (collection.mintContract) {
+        const queryResult = await runQuery(collection.mintContract, {
+          get_state_info: {},
+        });
+
+        let storeObject: CollectionStateType = {
+          mintCheck: queryResult.check_mint,
+          mintedNfts: +(queryResult.count || "0"),
+          totalNfts: +(queryResult.total_nft || "0"),
+          maxNfts: +(queryResult.max_nft || queryResult.total_nft || "0"),
+          imageUrl: queryResult.image_url,
+          price: +(queryResult.price || "0") / 1e6,
+          myMintedNfts: null,
+        };
+        if (account && account.address) {
+          const userInfo = await runQuery(collection.mintContract, {
+            get_user_info: { address: account.address },
+          });
+          storeObject.myMintedNfts = +(userInfo || "0");
+        }
+        dispatch(setCollectionState([collection.collectionId, storeObject]));
+      }
+      if (collection.nftContract) {
+        const queryResult: any = await runQuery(collection.nftContract, {
+          tokens: {
+            owner: account?.address,
+            start_after: undefined,
+            limit: undefined,
+          },
+        });
+        const nftList = queryResult?.tokens?.length
+          ? queryResult.tokens.map((item: string) => ({
+              token_id: item,
+              collectionId: collection.collectionId,
+            }))
+          : [];
+        dispatch(setNFTs([collection.collectionId, nftList]));
+      }
+      if (
+        collection.marketplaceContract &&
+        collection.marketplaceContract.length
+      ) {
+        let queries: any = [];
+        let contractAddresses: string[] = [];
+        collection.marketplaceContract.forEach(
+          (contract: string, index: number) => {
+            if (contracts[contract]) {
+              queries.push(
+                runQuery(contract, {
+                  get_offerings: {},
+                })
+              );
+              contractAddresses.push(contract);
+            }
+          }
+        );
+        await Promise.all(queries).then((queryResults: any) => {
+          let listedNFTs: any = [],
+            marketplaceNFTs: any = [];
+          queryResults.forEach((queryResult: any, index: number) => {
+            queryResult?.offerings?.forEach((item: any) => {
+              const crrItem = {
+                ...item,
+                contractAddress: contractAddresses[index],
+                collectionId: collection.collectionId,
+              };
+              if (item.seller === account?.address) {
+                listedNFTs = [...listedNFTs, crrItem];
+              } else {
+                marketplaceNFTs = [...marketplaceNFTs, crrItem];
+              }
+            });
+          });
+          dispatch(setNFTs([`${collection.collectionId}_listed`, listedNFTs]));
+          dispatch(
+            setNFTs([`${collection.collectionId}_marketplace`, marketplaceNFTs])
+          );
+        });
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, fetchUnlistedNFTs, fetchListedNFTs]);
+  }, [account, contracts]);
 
   return {
-    fetchUnlistedNFTs,
-    fetchListedNFTs,
     fetchAllNFTs,
   };
 };
