@@ -23,7 +23,7 @@ jobs:
         if: ${{ steps.project.outputs.deployment-enabled == 'true' }}
         uses: actions/checkout@v2
         with:
-          submodules: 'recursive'
+          submodules: "recursive"
 
       - name: Render templates
         if: ${{ steps.project.outputs.deployment-enabled == 'true' }}
@@ -44,8 +44,8 @@ jobs:
           SITE_URL: ${{ steps.project.outputs.site-url }}
         run: |
           npm install --global yarn
-          yarn install --frozen-lockfile
-          yarn build
+          npm install --frozen-lockfile
+          npm run build
 
       - name: Deploy to IONOS
         if: ${{ steps.project.outputs.deployment-enabled == 'true' }}
