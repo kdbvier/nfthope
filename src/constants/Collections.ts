@@ -67,7 +67,9 @@ const Collections: MarketplaceInfo[] = [
       "juno1e229el8t4lu4rx7xeekc77zspxa2gz732ld0e6a5q0sr0l3gm78stuvc5g",
     mintContract:
       "juno10rjm83ng8v667hn3cpn7ga46u50qqnuyh9j2h9tm6famwj96scmszqgt24",
-    marketplaceContract: [""],
+    marketplaceContract: [
+      "juno1smf3u3qd4dc20cgsu7hsh95awxea0usw0q0jj2f3vmrykpk3ua4qn738hz",
+    ],
     socialLinks: {
       discord: "https://discord.gg/BfKPacc5jF",
       website: "https://hopers.io/",
