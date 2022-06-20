@@ -136,6 +136,8 @@ const MintItem: React.FC<Props> = ({ mintItem }) => {
     }
   };
 
+  console.log("mint itme", mintItem.collectionId, collectionState);
+
   const renderDetailBlocks = (items: NFT_DETAIL_KEY[], width?: string) => {
     return items.map((item: NFT_DETAIL_KEY, index: any) => (
       <DetailBlock width={item.width || width} key={index}>
@@ -200,7 +202,7 @@ const MintItem: React.FC<Props> = ({ mintItem }) => {
           >
             {isSoldOut
               ? "Mint Sold Out"
-              : isLive && (mintItem.mintContract || mintItem.mintInfo?.mintUrl)
+              : isLive
               ? "Mint Now"
               : `Mint ${convertDateToString(mintInfo.mintDate || "")}`}
           </MintButton>

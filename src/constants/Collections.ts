@@ -155,7 +155,8 @@ const Collections: MarketplaceInfo[] = [
     collectionId: "junofarming",
     nftContract:
       "juno1smtyfg7036ds982x94l543gwj7f0fky73hjtvxdpf83m0t0f86sstr3pal",
-    mintContract: "",
+    mintContract:
+      "juno1724gaheqp34h25ul8n7vl7rur8krdd02hyn5p4hlt065x7yuuwnsxjqqe5",
     marketplaceContract: [
       "juno150nsxfrmmggc82dyk0t7klf3hd8d2nzznrd327zn8lngnnuxdxast4um3e",
     ],
