@@ -35,6 +35,7 @@ export interface MarketplaceMintInfo {
   price: string;
   mintImage: string;
   mintDate?: string;
+  mintUrl?: string;
 }
 
 export interface MarketplaceInfo extends MarketplaceBasicInfo {
@@ -152,9 +153,12 @@ const Collections: MarketplaceInfo[] = [
     backgroundUrl: "/marketplace-backgrounds/JunoFarming.png",
     logoUrl: "/logos/JunoFarming.png",
     collectionId: "junofarming",
-    nftContract: "",
+    nftContract:
+      "juno1smtyfg7036ds982x94l543gwj7f0fky73hjtvxdpf83m0t0f86sstr3pal",
     mintContract: "",
-    marketplaceContract: [""],
+    marketplaceContract: [
+      "juno150nsxfrmmggc82dyk0t7klf3hd8d2nzznrd327zn8lngnnuxdxast4um3e",
+    ],
     socialLinks: {
       discord: "https://discord.gg/BfKPacc5jF",
       website: "https://hopers.io/",
@@ -168,6 +172,7 @@ const Collections: MarketplaceInfo[] = [
       price: "8 JUNO",
       mintImage: "/mint-images/JunoFarming.png",
       mintDate: "2022-06-20",
+      mintUrl: "https://junofarming.web.app",
     },
   },
   {
