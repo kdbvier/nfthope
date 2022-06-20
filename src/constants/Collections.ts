@@ -158,7 +158,7 @@ const Collections: MarketplaceInfo[] = [
     mintContract:
       "juno1724gaheqp34h25ul8n7vl7rur8krdd02hyn5p4hlt065x7yuuwnsxjqqe5",
     marketplaceContract: [
-      "juno150nsxfrmmggc82dyk0t7klf3hd8d2nzznrd327zn8lngnnuxdxast4um3e",
+      "juno17vess7spu37zqc86flweg5jkpwmvcc6g5ltkytst5tzlrrxr3j0qccalzx",
     ],
     socialLinks: {
       discord: "https://discord.gg/BfKPacc5jF",

@@ -136,8 +136,6 @@ const MintItem: React.FC<Props> = ({ mintItem }) => {
     }
   };
 
-  console.log("mint itme", mintItem.collectionId, collectionState);
-
   const renderDetailBlocks = (items: NFT_DETAIL_KEY[], width?: string) => {
     return items.map((item: NFT_DETAIL_KEY, index: any) => (
       <DetailBlock width={item.width || width} key={index}>
