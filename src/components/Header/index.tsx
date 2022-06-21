@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
+import { useWalletManager } from "@noahsaso/cosmodal";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import Collections from "../../constants/Collections";
 import { setKeplrAccount } from "../../features/accounts/accountsSlice";
-import { useKeplr } from "../../features/accounts/useKeplr";
+// import { useKeplr } from "../../features/accounts/useKeplr";
 import { setNFTs } from "../../features/nfts/nftsSlice";
 import useContract from "../../hook/useContract";
 import useFetch from "../../hook/useFetch";
@@ -26,6 +27,7 @@ import {
   MenuContainer,
   MenuItem,
 } from "./styled";
+// import { useCosmodal } from "../../features/accounts/useCosmodal";
 
 const HeaderLinks = [
   {
@@ -44,7 +46,9 @@ const Header: React.FC = () => {
     useState<NodeJS.Timeout | null>(null);
   const dispatch = useAppDispatch();
   const account = useAppSelector((state) => state.accounts.keplrAccount);
-  const { connect } = useKeplr();
+  // const { connect } = useKeplr();
+  // const { connect: connectWithCosmodal } = useCosmodal();
+  const { connect, disconnect } = useWalletManager();
   const history = useHistory();
   const {
     fetchCollectionInfo,
@@ -83,11 +87,13 @@ const Header: React.FC = () => {
   const clickWalletButton = () => {
     if (!account) {
       connect();
+      // connectWithCosmodal();
     } else {
       dispatch(setKeplrAccount());
       Collections.forEach((collection: MarketplaceInfo) =>
         setNFTs([collection.collectionId, []])
       );
+      disconnect();
     }
   };
 
