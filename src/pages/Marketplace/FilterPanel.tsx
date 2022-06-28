@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import {
   // DEFAULT_STATUS_FILTER,
@@ -27,6 +27,7 @@ import {
   SearchWrapper,
   CoinImage,
   CoinImageWrapper,
+  FilterResultPanel,
 } from "./styled";
 
 const ArrowIcon = ({
@@ -95,6 +96,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   const [isAscending, setIsAscending] = useState(true);
   const [searchWord, setSearchWord] = useState<string>("");
   const [priceType, setPriceType] = useState<string>("");
+
+  const searchSortContainer = useRef(null);
+
+  const searchSortHeight =
+    (searchSortContainer?.current as any)?.offsetHeight || 0;
 
   useEffect(() => {
     onChangeFilterOption({
@@ -217,7 +223,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             })}
       </FilterContainer>
       <FilterMainContent>
-        <SearchSortPanel>
+        <SearchSortPanel ref={searchSortContainer}>
           <SortContainer>
             <SortByPriceButton onClick={handleSortByPrice}>{`Sort By ${
               isAscending ? "Descending" : "Ascending"
@@ -235,7 +241,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             </SearchContainer>
           </SearchWrapper>
         </SearchSortPanel>
-        {children}
+        <FilterResultPanel siblingHeight={searchSortHeight}>
+          {children}
+        </FilterResultPanel>
       </FilterMainContent>
     </FilterWrapper>
   );

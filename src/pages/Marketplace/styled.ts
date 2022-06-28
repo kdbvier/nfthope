@@ -60,10 +60,15 @@ export const FilterMainContent = styled.div`
 `;
 
 export const SearchSortPanel = styled.div`
+  padding: 0 10px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  justify-items: center;
-  align-items: center;
+  justify-items: start;
+  /* align-items: center; */
+`;
+
+export const FilterResultPanel = styled.div<{ siblingHeight: number }>`
+  height: calc(100% - ${({ siblingHeight }) => siblingHeight}px);
 `;
 
 export const SortContainer = styled.div`
@@ -170,7 +175,7 @@ export const NftList = styled.div`
   font-size: 1em;
   font-weight: bold;
   margin-top: 20px;
-  height: calc(100% - 75px);
+  height: calc(100% - 20px);
   overflow-x: hidden;
   overflow-y: auto;
 `;
