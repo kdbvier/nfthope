@@ -264,7 +264,7 @@ const Collections: MarketplaceInfo[] = [
       twitter: "https://twitter.com/BoredApeIbcClub",
     },
     description:
-      "This is mint pass is the ticket for the minting of the Hope Galaxy NFT collection once it is launched.",
+      "Bored Ape IBC Club/ community driven project/ in honour of the #BAYC 🙌 for the #COSMOS #IBC ⚛️",
     mintInfo: {
       totalNfts: 500,
       royalties: "7% + 3%",
