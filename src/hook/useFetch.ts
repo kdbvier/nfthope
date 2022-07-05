@@ -25,7 +25,7 @@ type MetaDataItemType = {
   [key: string]: any;
 };
 
-const MAX_ITEMS = 50;
+const MAX_ITEMS = 30;
 
 const getMin = (number: number, max?: number): number => {
   const maxNumber = max || 1e5;
