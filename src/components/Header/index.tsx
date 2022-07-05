@@ -80,7 +80,7 @@ const Header: React.FC = () => {
       // initContracts();
       const intervalId: NodeJS.Timeout | null = setInterval(() => {
         fetchMyNFTs();
-      }, 5000);
+      }, 10000);
       setFetchingIntervalId(intervalId);
     } else {
       clearAllNFTs();

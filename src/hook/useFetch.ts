@@ -254,6 +254,7 @@ const useFetch = () => {
             marketplaceNFTs = [...marketplaceNFTs, crrItem];
           });
         });
+        console.log("listedNFTs",listedNFTs)
         dispatch(setNFTs([`${collection.collectionId}_listed`, listedNFTs]));
         dispatch(
           setNFTs([`${collection.collectionId}_marketplace`, marketplaceNFTs])
