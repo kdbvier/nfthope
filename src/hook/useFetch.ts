@@ -25,8 +25,7 @@ type MetaDataItemType = {
   [key: string]: any;
 };
 
-const MAX_ITEMS = 150;
- let tokenIds: string[];
+const MAX_ITEMS = 50;
 
 const getMin = (number: number, max?: number): number => {
   const maxNumber = max || 1e5;
@@ -184,33 +183,12 @@ const useFetch = () => {
     Collections.forEach(async (collection: MarketplaceInfo) => {
       let queries: any = [];
       let contractAddresses: string[] = [];
-      tokenIds = [];
 
-      const collection_info :any =  await runQuery(MarketplaceContracts[0],{
-        get_collection_info: {
-          address: collection.nftContract
-           }
-      })
-
-     for(let i=1;i<=collection_info.offering_id;i++)
-        {
-          try{
-           await runQuery(MarketplaceContracts[0],{
-            get_offering_page: {
-                 address: collection.nftContract,
-                 id:[String(i)]
-                 }
-               });
-            tokenIds.push(String(i));
-           }
-          catch{
-            continue;
-          }
-
-        }
-
-        console.log("token_ids",tokenIds);
-     
+      const tokenIds = await runQuery(MarketplaceContracts[0], {
+        get_offering_id: {
+          address: collection.nftContract,
+        },
+      });
       for (let i = 0; i < Math.ceil(tokenIds.length / MAX_ITEMS); i++) {
         queries.push(
           runQuery(MarketplaceContracts[0], {
@@ -276,7 +254,6 @@ const useFetch = () => {
             marketplaceNFTs = [...marketplaceNFTs, crrItem];
           });
         });
-        console.log("listedNFTs",listedNFTs)
         dispatch(setNFTs([`${collection.collectionId}_listed`, listedNFTs]));
         dispatch(
           setNFTs([`${collection.collectionId}_marketplace`, marketplaceNFTs])
