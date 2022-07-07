@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from "react";
-// import { useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useWalletManager } from "@noahsaso/cosmodal";
-import { useAppSelector } from "../../app/hooks";
-// import Collections from "../../constants/Collections";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import Collections from "../../constants/Collections";
 // import { useKeplr } from "../../features/accounts/useKeplr";
-// import { setNFTs } from "../../features/nfts/nftsSlice";
-// import {
-//   AccountType,
-//   setKeplrAccount,
-// } from "../../features/accounts/accountsSlice";
-// import useContract from "../../hook/useContract";
-// import useFetch from "../../hook/useFetch";
+import { setNFTs } from "../../features/nfts/nftsSlice";
+import {
+  AccountType,
+  setKeplrAccount,
+} from "../../features/accounts/accountsSlice";
+import useContract from "../../hook/useContract";
 import useOnClickOutside from "../../hook/useOnClickOutside";
 import useWindowSize from "../../hook/useWindowSize";
 import { ListIcon } from "../Icons";
-// import { MarketplaceInfo } from "../../constants/Collections";
+import { MarketplaceInfo } from "../../constants/Collections";
 import {
   HeaderWrapper,
   LogoContainer,
@@ -30,8 +29,8 @@ import {
   MenuContainer,
   MenuItem,
 } from "./styled";
-import { toast } from "react-toastify";
-// import { coin } from "@cosmjs/proto-signing";
+import { coin } from "@cosmjs/proto-signing";
+import useRefresh from "../../hook/useRefresh";
 // import { useCosmodal } from "../../features/accounts/useCosmodal";
 
 const HeaderLinks = [
@@ -47,93 +46,69 @@ const Header: React.FC = () => {
   const [isOpenMenu, setIsOpenMenu] = useState(false);
   // const [runningFetch, setRunningFetch] = useState(false);
   const [ref, setRef] = useState<HTMLDivElement | null>(null); // TODO: must use useRef
-  // const [fetchingIntervalId, setFetchingIntervalId] =
-  //   useState<NodeJS.Timeout | null>(null);
-  // const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
   const account = useAppSelector((state) => state.accounts.keplrAccount);
-  // const config = useAppSelector((state) => state.connection.config);
+  const config = useAppSelector((state) => state.connection.config);
   // const { connect } = useKeplr();
   // const { connect: connectWithCosmodal } = useCosmodal();
-  const { disconnect } = useWalletManager();
-  // const history = useHistory();
-  // const {
-  //   fetchCollectionInfo,
-  //   fetchMyNFTs,
-  //   fetchMarketplaceNFTs,
-  //   clearAllNFTs,
-  // } = useFetch();
-  // const { initContracts } = useContract();
+  const { connect, disconnect, connectedWallet } = useWalletManager();
+  const history = useHistory();
+  const { initContracts } = useContract();
+  const { refresh } = useRefresh();
 
   const { isMobile } = useWindowSize(900);
 
   useEffect(() => {
-    disconnect();
-    // initContracts();
-    // setInterval(() => {
-    //   fetchMarketplaceNFTs();
-    //   fetchCollectionInfo();
-    // }, 5000);
+    refresh();
+    initContracts();
+    return () => {
+      dispatch(setKeplrAccount());
+      Collections.forEach((collection: MarketplaceInfo) =>
+        setNFTs([collection.collectionId, []])
+      );
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // // useEffect(() => {
-  // //   if (account) {
-  // //     // setRunningFetch(true);
-  // //     // initContracts();
-  // //     const intervalId: NodeJS.Timeout | null = setInterval(() => {
-  // //       fetchMyNFTs();
-  // //     }, 5000);
-  // //     setFetchingIntervalId(intervalId);
-  // //   } else {
-  // //     clearAllNFTs();
-  // //     if (fetchingIntervalId) clearInterval(fetchingIntervalId);
-  // //   }
-  // //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // // }, [account]);
+  useEffect(() => {
+    if (!connectedWallet) {
+      dispatch(setKeplrAccount());
+      Collections.forEach((collection: MarketplaceInfo) =>
+        setNFTs([collection.collectionId, []])
+      );
+    } else {
+      const { name: label, address } = connectedWallet;
+      dispatch(
+        setKeplrAccount({
+          label,
+          address,
+          type: AccountType.Keplr,
+          balance: coin(0, config["microDenom"]),
+        })
+      );
+    }
+  }, [connectedWallet, dispatch, config, refresh]);
 
-  // useEffect(() => {
-  //   if (!connectedWallet) {
-  //     dispatch(setKeplrAccount());
-  //     Collections.forEach((collection: MarketplaceInfo) =>
-  //       setNFTs([collection.collectionId, []])
-  //     );
-  //   } else {
-  //     const { name: label, address } = connectedWallet;
-  //     dispatch(
-  //       setKeplrAccount({
-  //         label,
-  //         address,
-  //         type: AccountType.Keplr,
-  //         balance: coin(0, config["microDenom"]),
-  //       })
-  //     );
-  //   }
-  // }, [connectedWallet, dispatch, config]);
-
-  // const clickWalletButton = () => {
-  //   if (!account) {
-  //     connect();
-  //     // connectWithCosmodal();
-  //   } else {
-  //     dispatch(setKeplrAccount());
-  //     Collections.forEach((collection: MarketplaceInfo) =>
-  //       setNFTs([collection.collectionId, []])
-  //     );
-  //     disconnect();
-  //   }
-  // };
+  const clickWalletButton = () => {
+    if (!account) {
+      connect();
+      // connectWithCosmodal();
+    } else {
+      // dispatch(setKeplrAccount());
+      // Collections.forEach((collection: MarketplaceInfo) =>
+      //   setNFTs([collection.collectionId, []])
+      // );
+      disconnect();
+    }
+  };
 
   const handleClickLink = (url: string) => {
-    toast.info(`Website under maintenance🧑‍🔧. \n
-  We will delivery a new and improved version. \n
-
-  Your NFTs are safe. 🍀`);
-    // if (!url) return;
-    // if (url.includes("http:")) {
-    //   window.open(url);
-    // } else {
-    //   history.push(url);
-    // }
+    if (!url) return;
+    if (url.includes("http:")) {
+      window.open(url);
+    } else {
+      history.push(url);
+    }
   };
 
   const handleOpenMenu = () => {
@@ -168,7 +143,7 @@ const Header: React.FC = () => {
               <MenuItem onClick={() => handleClickLink("/profile")}>
                 My Profile
               </MenuItem>
-              <MenuItem>
+              <MenuItem onClick={clickWalletButton}>
                 {account ? (
                   <>
                     {account.label}
@@ -192,7 +167,7 @@ const Header: React.FC = () => {
             </LinkButton>
           ))}
           <ProfileIcon onClick={() => handleClickLink("/profile")} />
-          <ConnectWalletButton>
+          <ConnectWalletButton onClick={clickWalletButton}>
             {account ? (
               <>
                 {account.label}
