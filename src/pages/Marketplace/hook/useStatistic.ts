@@ -16,6 +16,7 @@ const useStatistic = (collectionId: string, items: any) => {
   const collectionState: CollectionStateType = useAppSelector(
     (state: any) => state.collectionStates[collectionId]
   );
+  const tokenPrices = useAppSelector((state) => state.tokenPrices);
   // console.log("collectionState", collectionState);
 
   const total: string = useMemo(() => {
@@ -41,7 +42,7 @@ const useStatistic = (collectionId: string, items: any) => {
   //   [collectionState]
   // );
   const floorPrices: { hope: number; juno: number } = useMemo(() => {
-    let result = { hope: 1e9, juno: 1e9 };
+    let result = { hope: 1e9, juno: 1e9, raw: 1e9 };
     items.forEach((item: any) => {
       const crrListedPrice = item.list_price || {};
       let crrPrice = Number(crrListedPrice.amount || "0");
@@ -50,18 +51,26 @@ const useStatistic = (collectionId: string, items: any) => {
         if (result.hope > crrPrice) result.hope = crrPrice;
       } else if (crrListedPrice.denom === NFTPriceType.JUNO) {
         if (result.juno > crrPrice) result.juno = crrPrice;
+      } else if (crrListedPrice.denom === NFTPriceType.RAW) {
+        if (result.raw > crrPrice) result.raw = crrPrice;
       }
     });
     return result;
   }, [items]);
 
-  const volumePrices: { hope: number; juno: number } = useMemo(
-    () => ({
-      hope: collectionState.tradingInfo?.hopeTotal || 0,
-      juno: collectionState.tradingInfo?.junoTotal || 0,
-    }),
-    [collectionState]
-  );
+  const volumePrices: { hope: number; juno: number } = useMemo(() => {
+    const hopeVolume = collectionState.tradingInfo?.hopeTotal || 0;
+    const rawVolume = collectionState.tradingInfo?.rawTotal || 0;
+    const junoVolume = collectionState.tradingInfo?.junoTotal || 0;
+
+    const hopeUsd = tokenPrices["hope"]?.market_data.current_price?.usd || 0;
+
+    return {
+      hope: hopeVolume,
+      raw: rawVolume,
+      juno: junoVolume,
+    };
+  }, [collectionState]);
 
   return {
     total,
