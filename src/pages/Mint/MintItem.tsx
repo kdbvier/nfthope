@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { toast } from "react-toastify";
+import { TIME_DIFF_BETWEEN_ONCHAIN } from ".";
 import { useAppSelector } from "../../app/hooks";
 import {
   getCollectionById,
@@ -14,7 +15,11 @@ import useContract from "../../hook/useContract";
 import useMatchBreakpoints from "../../hook/useMatchBreakpoints";
 import useRefresh from "../../hook/useRefresh";
 import useResponsiveSize from "../../hook/useResponsiveSize";
-import { compareDate, convertDateToString } from "../../util/date";
+import {
+  compareDate,
+  convertDateToString,
+  timeDistance,
+} from "../../util/date";
 
 import {
   MintDetailContainer,
@@ -28,6 +33,7 @@ import {
   OperationContainer,
   FlexColumn,
   MintButton,
+  LeftTimeContainer,
   MintImage,
   MintImageWrapper,
 } from "./styled";
@@ -80,12 +86,17 @@ const ELEMENT_SIZE = {
 };
 
 const MintItem: React.FC<Props> = ({ mintItem }) => {
-  const mintInfo: MarketplaceMintInfo = mintItem.mintInfo || {
-    totalNfts: 0,
-    royalties: "",
-    price: "",
-    mintImage: "",
-  };
+  const mintInfo: MarketplaceMintInfo = useMemo(
+    () =>
+      mintItem.mintInfo || {
+        totalNfts: 0,
+        royalties: "",
+        price: "",
+        mintImage: "",
+      },
+    [mintItem]
+  );
+  const [crrTime, setCrrTime] = useState(new Date());
   const { isXl } = useMatchBreakpoints();
   const { runExecute } = useContract();
   const history = useHistory();
@@ -98,20 +109,68 @@ const MintItem: React.FC<Props> = ({ mintItem }) => {
   const now = new Date();
   const isLive = compareDate(now, mintDate) !== -1;
 
+  useEffect(() => {
+    const interval = setInterval(() => setCrrTime(new Date()), 800);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
   const fontSize = useResponsiveSize(
     ELEMENT_SIZE.DETAIL_BLOCK_TITLE
   ).toString();
+
   const operationItemSize = useResponsiveSize(
     ELEMENT_SIZE.OPERATION_ITEM_WIDTH
   ).toString();
 
+  const isSoldOut: boolean =
+    !!collectionState?.mintedNfts &&
+    collectionState?.mintedNfts >= collectionState?.totalNfts;
+
+  const includesPrivateMint =
+    (collectionState?.mintInfo?.mintPeriod || 0) > 0 &&
+    (collectionState?.mintInfo?.startMintTime || 0) > 0;
+  const { passedPrivateMint, beforePrivateMint, timeLeft } = useMemo(() => {
+    let isPassed = false,
+      isBefore = false,
+      left = "";
+    if (
+      collectionState?.mintInfo &&
+      (collectionState.mintInfo?.startMintTime || 0) > 0
+    ) {
+      const startMintTime = new Date(
+        (collectionState?.mintInfo.startMintTime + TIME_DIFF_BETWEEN_ONCHAIN) *
+          1000
+      );
+      const endMintTime = new Date(
+        (collectionState.mintInfo.startMintTime +
+          (collectionState.mintInfo.mintPeriod || 0)) *
+          1000
+      );
+      isPassed = Number(crrTime) > Number(endMintTime);
+      isBefore = Number(crrTime) < Number(startMintTime);
+      if (isBefore) {
+        left = timeDistance(crrTime, startMintTime);
+      } else if (!isPassed) {
+        left = timeDistance(crrTime, endMintTime);
+      }
+    }
+    return {
+      passedPrivateMint: isPassed,
+      beforePrivateMint: isBefore,
+      timeLeft: left,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collectionState, crrTime]);
+
   const handleMintNft = async () => {
-    // if (!mintItem.mintContract && !mintItem.mintInfo?.mintUrl) {
-    //   toast.error("Mint contract not found!");
-    //   return;
-    // }
     if (mintItem.mintInfo?.mintUrl) {
       window.open(mintItem.mintInfo.mintUrl);
+      return;
+    }
+    if (beforePrivateMint) {
+      toast.error(`Mint is not started. ${timeLeft} left!`);
       return;
     }
     if (collectionState.totalNfts <= collectionState.mintedNfts) {
@@ -123,7 +182,11 @@ const MintItem: React.FC<Props> = ({ mintItem }) => {
       if (item) mintIndexArray.push(index);
     });
     const selectedIndex = mintIndexArray.sort(() => 0.5 - Math.random()).pop();
-    const message = mintItem.mintContract
+    const message = targetCollection.mintInfo?.mintLogic?.getMintMessage
+      ? targetCollection.mintInfo?.mintLogic.getMintMessage({
+          collection: targetCollection,
+        })
+      : mintItem.mintContract
       ? {
           mint: { rand: `${(selectedIndex || 0) + 1}` },
         }
@@ -142,6 +205,30 @@ const MintItem: React.FC<Props> = ({ mintItem }) => {
       toast.error("Fail!");
     }
   };
+
+  const buttonString = useMemo(() => {
+    let result = "";
+    if (isSoldOut) {
+      result = "Mint Sold Out";
+    } else if (includesPrivateMint && beforePrivateMint) {
+      result = "WL Mint Scheduled";
+    } else if (includesPrivateMint && !passedPrivateMint) {
+      result = "WL Mint Live";
+    } else if (isLive && targetCollection.isLaunched) {
+      result = "Mint Live";
+    } else {
+      result = `Mint ${convertDateToString(mintInfo.mintDate || "")}`;
+    }
+    return result;
+  }, [
+    beforePrivateMint,
+    includesPrivateMint,
+    isLive,
+    isSoldOut,
+    mintInfo,
+    passedPrivateMint,
+    targetCollection,
+  ]);
 
   const renderDetailBlocks = (items: NFT_DETAIL_KEY[], width?: string) => {
     return items.map((item: NFT_DETAIL_KEY, index: any) => (
@@ -164,10 +251,6 @@ const MintItem: React.FC<Props> = ({ mintItem }) => {
   const renderMintImage = () => (
     <MintImage isMobile={!isXl} alt="mint image" src={mintInfo.mintImage} />
   );
-
-  const isSoldOut: boolean =
-    !!collectionState.mintedNfts &&
-    collectionState.mintedNfts >= collectionState.totalNfts;
 
   return (
     <MintDetailContainer isMobile={!isXl}>
@@ -197,6 +280,7 @@ const MintItem: React.FC<Props> = ({ mintItem }) => {
           </FlexColumn>
           <MintButton
             soldOut={isSoldOut}
+            backgroundColor={beforePrivateMint ? "#FCFF5C" : ""}
             disabled={
               !targetCollection.isLaunched ||
               // (mintItem.mintContract &&
@@ -206,11 +290,14 @@ const MintItem: React.FC<Props> = ({ mintItem }) => {
             width={operationItemSize}
             onClick={handleMintNft}
           >
-            {isSoldOut
-              ? "Mint Sold Out"
-              : isLive && targetCollection.isLaunched
-              ? "Mint Now"
-              : `Mint ${convertDateToString(mintInfo.mintDate || "")}`}
+            {buttonString}
+            {timeLeft && (
+              <LeftTimeContainer>
+                {beforePrivateMint
+                  ? `TIME LEFT ${timeLeft}`
+                  : `ENDING IN ${timeLeft}`}
+              </LeftTimeContainer>
+            )}
           </MintButton>
         </OperationContainer>
       </MintDetailInfo>
