@@ -1,23 +1,34 @@
-import { useCallback } from "react";
+import {
+  useCallback,
+  // useEffect
+} from "react";
 import { useHistory } from "react-router-dom";
 import { toast } from "react-toastify";
-import { showCustomToast, ToastType } from "../components/CustomToast";
+import { useAppSelector } from "../app/hooks";
+import {
+  showBuySuccessToast,
+  showInsufficientToast,
+  ToastType,
+} from "../components/CustomToast";
+// import usePopoutQuickSwap, { SwapType } from "../components/Popout";
+// import { ChainTypes } from "../constants/ChainTypes";
 import {
   getCollectionById,
   MarketplaceContracts,
 } from "../constants/Collections";
-import { NFTPriceType } from "../types/nftPriceTypes";
+import { TokenStatus, TokenType } from "../types/tokens";
 import useContract from "./useContract";
-import { contractAddresses } from "./useContract";
 import useRefresh from "./useRefresh";
 
 const useHandleNftItem = () => {
   const { runExecute } = useContract();
   const { refresh } = useRefresh();
   const history = useHistory();
+  // const popoutQuickSwap = usePopoutQuickSwap();
+  const balances = useAppSelector((state) => state.balances);
 
   const sellNft = useCallback(
-    async (item: any, nftPrice: any, nftPriceType: any) => {
+    async (item: any, nftPrice: any, TokenType: any) => {
       const targetCollection = getCollectionById(item.collectionId);
       const regExp = /^(\d+(\.\d+)?)$/;
       const price = +nftPrice;
@@ -29,11 +40,11 @@ const useHandleNftItem = () => {
         toast.error("Invalid Price!");
         return;
       }
-      if (!nftPriceType) {
+      if (!TokenType) {
         toast.error("Select Price Type!");
         return;
       }
-      // if (nftPriceType === NFTPriceType.HOPE && price < 1) {
+      // if (TokenType === TokenType.HOPE && price < 1) {
       //   toast.error("Insufficient Price!");
       //   return;
       // }
@@ -50,7 +61,7 @@ const useHandleNftItem = () => {
           msg: btoa(
             JSON.stringify({
               list_price: {
-                denom: nftPriceType,
+                denom: TokenType,
                 amount: `${price * 1e6}`,
               },
             })
@@ -105,10 +116,13 @@ const useHandleNftItem = () => {
   const buyNft = useCallback(
     async (item: any) => {
       if (!item.contractAddress) return;
-      const targetCollection = getCollectionById(item.collectionId);
       const price = item?.list_price || {};
-      const message =
-        price.denom === NFTPriceType.JUNO
+      const myBalance = balances[price.denom as TokenType];
+      const tokenStatus = TokenStatus[price.denom as TokenType];
+
+      const mainLogic = async () => {
+        const targetCollection = getCollectionById(item.collectionId);
+        const message = tokenStatus.isNativeCoin
           ? {
               buy_nft: {
                 offering_id: item.id,
@@ -134,32 +148,73 @@ const useHandleNftItem = () => {
                 ),
               },
             };
-      try {
-        if (price.denom === NFTPriceType.JUNO) {
-          await runExecute(
-            // item.token_id.includes("Hope")
-            //   ? contractAddresses.MARKET_CONTRACT
-            //   : contractAddresses.MARKET_REVEAL_CONTRACT,
-            item.contractAddress,
-            message,
-            {
-              funds: "" + price.amount / 1e6,
-            }
-          );
-        } else {
-          await runExecute(
-            contractAddresses[price.denom as NFTPriceType],
-            message
-          );
+        try {
+          if (tokenStatus.isNativeCoin) {
+            await runExecute(
+              // item.token_id.includes("Hope")
+              //   ? contractAddresses.MARKET_CONTRACT
+              //   : contractAddresses.MARKET_REVEAL_CONTRACT,
+              item.contractAddress,
+              message,
+              {
+                funds: "" + price.amount / 1e6,
+                denom: price.denom,
+              }
+            );
+          } else {
+            await runExecute(
+              TokenStatus[price.denom as TokenType].contractAddress || "",
+              message
+            );
+          }
+          showBuySuccessToast(item, ToastType.BUY);
+          refresh();
+        } catch (err: any) {
+          const errMsg = err.message;
+          console.error(errMsg, typeof errMsg);
+          toast.error(`Fail! ${errMsg}`);
         }
-        showCustomToast(item, ToastType.BUY);
-        refresh();
-      } catch (err) {
-        console.error(err);
-        toast.error("Fail!");
+      };
+
+      // const showQuickSwapPopout = (insufficientAmount: number) => {
+      //   popoutQuickSwap(
+      //     {
+      //       swapType: SwapType.DEPOSIT,
+      //       denom: price.denom as TokenType,
+      //       swapChains: {
+      //         origin: ChainTypes.JUNO,
+      //         foreign: ChainTypes.COSMOS,
+      //       },
+      //       minAmount: insufficientAmount,
+      //     },
+      //     async (amount: any) => {
+      //       if (amount) {
+      //         await mainLogic();
+      //       }
+      //       return;
+      //     }
+      //   );
+      // };
+
+      if ((myBalance?.amount || 0) < Number(price.amount)) {
+        const tokenName = (
+          Object.keys(TokenType) as Array<keyof typeof TokenType>
+        )
+          .filter((x) => TokenType[x] === price.denom)[0]
+          ?.toUpperCase();
+        // const insufficientAmount =
+        //   (Number(price.amount) - (myBalance?.amount || 0)) / 1e6;
+        showInsufficientToast(
+          myBalance?.amount || 0,
+          tokenName
+          // tokenStatus.isIBCCOin &&
+          //   (() => showQuickSwapPopout(insufficientAmount))
+        );
+        return;
       }
+      await mainLogic();
     },
-    [runExecute, refresh]
+    [balances, refresh, runExecute]
   );
   const transferNft = useCallback(
     async (recipient: any, item: any, callbackLink?: string) => {

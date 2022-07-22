@@ -6,7 +6,7 @@ import ReactSelect, { ControlProps } from "react-select";
 //   StatisticSettings,
 // } from "../../constants/Collections";
 // import useMatchBreakpoints from "../../hook/useMatchBreakpoints";
-import { NFTPriceType } from "../../types/nftPriceTypes";
+import { TokenType } from "../../types/tokens";
 import useStatistic from "./hook/useStatistic";
 
 import {
@@ -88,10 +88,10 @@ interface StatisticProps {
 
 const Statistic: React.FC<StatisticProps> = ({ items, collectionId }) => {
   const SelectOptions = (
-    Object.keys(NFTPriceType) as Array<keyof typeof NFTPriceType>
+    Object.keys(TokenType) as Array<keyof typeof TokenType>
   ).map((key) => {
     return {
-      value: NFTPriceType[key],
+      value: TokenType[key],
       text: key,
     };
   });
@@ -166,7 +166,10 @@ const Statistic: React.FC<StatisticProps> = ({ items, collectionId }) => {
         }}
         checked={option.value === selectValue.value}
       >
-        <StatisticIcon alt="" src={`/coin-images/${option.value}.png`} />
+        <StatisticIcon
+          alt=""
+          src={`/coin-images/${option.value.replace(/\//g, "")}.png`}
+        />
         <SelectItemTitle>
           <SelectItemContent>{option.text}</SelectItemContent>
           <SelectItemContent>Floor Price</SelectItemContent>

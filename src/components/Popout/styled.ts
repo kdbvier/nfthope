@@ -4,10 +4,11 @@ export const Wrapper = styled.div`
   border: 3px solid #39c639;
   border-radius: 10px;
   padding: 5px;
+  margin: 20px;
 `;
 
 export const Logo = styled.div`
-  background: url("/others/hopeHeaderLogo.png");
+  background: url("https://hopers.io/others/hopeHeaderLogo.png");
   background-size: cover;
   background-position: center;
   width: 124px;
@@ -17,25 +18,30 @@ export const Logo = styled.div`
 
 export const Container = styled.div`
   display: flex;
+  flex-wrap: wrap;
   flex-direction: column;
   align-items: center;
-  margin: 15px 30px;
+  margin: 30px 20px 20px;
 `;
 
-export const Content = styled.div<{ bold?: boolean }>`
-  color: black;
-  margin: 5px 0;
-  font-weight: ${({ bold }) => (bold ? "bold" : "normal")};
+export const AmountInputer = styled.input`
+  border: 2px solid #333;
+  border-radius: 5px;
+  color: #333;
+  font-size: 32px;
+  margin: 0 0 10px;
+  padding: 0.5rem 1rem;
+  width: 100%;
 `;
 
-export const NFTItemImageWrapper = styled.div`
-  width: 200px;
-  height: 200px;
-  margin: 10px;
-  position: relative;
+export const ErrMsgContainer = styled.div`
+  width: 100%;
+  height: 34px;
+  text-align: left;
+  color: red;
 `;
 
-export const NFTItemOperationButton = styled.div`
+export const OperationButton = styled.div`
   text-transform: uppercase;
   display: inline-flex;
   align-items: center;
@@ -52,6 +58,7 @@ export const NFTItemOperationButton = styled.div`
   font-weight: 500;
   line-height: 1.75;
   text-transform: capitalize;
+  min-width: 64px;
   padding: 6px 16px;
   color: #fff;
   font-size: 16px;
@@ -68,19 +75,5 @@ export const NFTItemOperationButton = styled.div`
     background-color: #1b5e20;
     box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%),
       0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
-  }
-`;
-
-export const InsufficientErrorMessageWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-export const InsufficientErrorMessage = styled.div``;
-
-export const QuickSwapLink = styled.div`
-  &:hover {
-    text-decoration: underline;
   }
 `;

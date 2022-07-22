@@ -140,13 +140,16 @@ export const StatusFilterPanel = styled.div`
 export const CoinImageWrapper = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
 `;
 
 export const CoinImage = styled.div<{ coinType: string }>`
   width: 50px;
   height: 50px;
-  margin-right: 20px;
-  background: url(${({ coinType }) => `/coin-images/${coinType}.png`});
+  margin: 10px;
+  background: url(${({ coinType }) =>
+    `/coin-images/${coinType.replace(/\//g, "")}.png`});
   background-size: contain;
   background-repeat: no-repeat;
   cursor: pointer;
