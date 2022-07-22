@@ -176,10 +176,13 @@ const useFetch = () => {
         }
 
         if (collection.isLaunched) {
+          const symbols = (
+            Object.keys(TokenType) as Array<keyof typeof TokenType>
+          ).map((key) => TokenType[key]);
           const tradingInfoResult = await runQuery(MarketplaceContracts[0], {
             get_tvl_all: {
               address: collection.nftContract,
-              symbols: ["ujuno", "hope"],
+              symbols: symbols,
             },
           });
           let totalVolume: any = {};
