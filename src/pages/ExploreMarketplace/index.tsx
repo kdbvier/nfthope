@@ -93,6 +93,7 @@ const ExploreMarketplace: React.FC = () => {
       title: "New",
       Icon: () => <NewIcon />,
       order: [
+        CollectionIds.BORED3D,
         CollectionIds.JUNOPUNKS2,
         CollectionIds.ROMANS,
         CollectionIds.WITCHES,
