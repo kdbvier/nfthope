@@ -128,6 +128,7 @@ const ExploreMarketplace: React.FC = () => {
       title: "Community",
       Icon: () => <CommunityIcon />,
       order: [
+        CollectionIds.BORED3D,
         CollectionIds.BORED,
         CollectionIds.GOBLIN,
         CollectionIds.NETANOTS,
