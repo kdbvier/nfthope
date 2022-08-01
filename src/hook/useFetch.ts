@@ -48,7 +48,7 @@ const buildNFTItem = (
   metaData: any
 ) => {
   const customTokenId = collection.customTokenId;
-  const sortedMetaData = metaData.sort((item1: any, item2: any) =>
+  const sortedMetaData = metaData?.sort((item1: any, item2: any) =>
     item1.edition > item2.edition ? 1 : -1
   );
 
