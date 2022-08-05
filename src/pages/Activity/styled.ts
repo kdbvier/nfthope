@@ -5,7 +5,8 @@ export const Wrapper = styled.div`
 `;
 
 export const Logo = styled.div`
-  background: url("/others/logoHopers.png");
+  background: url(${({ theme }) =>
+    theme.isDark ? "/others/logoHopers_dark.png" : "/others/logoHopers.png"});
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
@@ -21,6 +22,7 @@ export const Title = styled.div`
   font-size: 28px;
   font-weight: bold;
   margin: 30px;
+  color: ${({ theme }) => theme.colors.fontColor};
 `;
 
 export const SearchWrapper = styled.div`
@@ -73,13 +75,17 @@ export const SearchContainer = styled.div`
 
 export const HistoryContainer = styled.div`
   margin: 20px 50px;
+  @media (max-width: 400px) {
+    margin: 20px 0;
+  }
 `;
 
 export const LoadMoreButton = styled.div`
   margin: 10px auto;
   cursor: pointer;
-  border: 1px solid black;
+  border: 1px solid ${({ theme }) => theme.colors.fontColor};
   border-radius: 10px;
   padding: 10px 30px;
   width: max-content;
+  color: ${({ theme }) => theme.colors.fontColor};
 `;

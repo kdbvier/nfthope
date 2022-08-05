@@ -1,6 +1,8 @@
 import styled, { css } from "styled-components";
 
-export const SaleHistoryWrapper = styled.div``;
+export const SaleHistoryWrapper = styled.div`
+  overflow: auto;
+`;
 
 export const HistoryItemBlock = styled.div<{ isMobile: boolean }>`
   display: flex;
@@ -37,6 +39,13 @@ export const CoinIcon = styled.img`
   margin-right: 5px;
 `;
 
+export const StyledSvg = styled.svg`
+  path {
+    fill: ${({ theme }) => theme.colors.fontColor};
+    transition: fill 0.5s;
+  }
+`;
+
 export const HistoryItemText = styled.div<{
   fontWeight?: string;
   fontSize?: string;
@@ -46,7 +55,7 @@ export const HistoryItemText = styled.div<{
 }>`
   font-weight: ${({ fontWeight }) => fontWeight || "normal"};
   font-size: ${({ fontSize }) => fontSize || "20px"};
-  color: ${({ color }) => color || "black"};
+  color: ${({ color, theme }) => color || theme.colors.fontColor};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
