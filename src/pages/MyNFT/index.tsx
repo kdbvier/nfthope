@@ -13,7 +13,7 @@ import {
   CoinIconWrapper,
   WithdrawButton,
   MyNftsHeader,
-  MyNftsTab,
+  Tab,
   SearchWrapper,
 } from "./styled";
 
@@ -26,9 +26,15 @@ import useMatchBreakpoints from "../../hook/useMatchBreakpoints";
 import { TokenStatus, TokenType } from "../../types/tokens";
 import usePopoutQuickSwap, { SwapType } from "../../components/Popout";
 import { ChainTypes } from "../../constants/ChainTypes";
-import { MyNftsTabs } from "./styled";
+import { Tabs } from "./styled";
 import SearchInputer from "../../components/SearchInputer";
+import ActivityList from "../../components/ActivityList";
 // import { getCustomTokenId } from "../../hook/useFetch";
+
+enum TAB_TYPE {
+  ITEMS = "NFTs",
+  ACTIVITY = "Activity",
+}
 
 enum NFT_TYPE {
   ALL = "My NFTs",
@@ -48,13 +54,17 @@ enum NFT_TYPE {
 // };
 
 const MyNFT: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState<NFT_TYPE>(NFT_TYPE.ALL);
+  const [selectedPageTab, setSelectedPageTab] = useState<TAB_TYPE>(
+    TAB_TYPE.ITEMS
+  );
+  const [selectedNftTab, setSelectedNftTab] = useState<NFT_TYPE>(NFT_TYPE.ALL);
   const [searchValue, setSearchValue] = useState<string>("");
   const { isXs, isSm, isMd } = useMatchBreakpoints();
   const popoutQuickSwap = usePopoutQuickSwap();
   const isMobile = isXs || isSm || isMd;
   const nfts = useAppSelector((state) => state.nfts);
   const balances = useAppSelector((state) => state.balances);
+  const account = useAppSelector((state) => state.accounts.keplrAccount);
 
   const myNfts: { [key in NFT_TYPE]: any } = useMemo(() => {
     let unlistedNFTs: any = [],
@@ -201,31 +211,52 @@ const MyNFT: React.FC = () => {
           }
         )}
       </TokenBalancesWrapper>
+      <Tabs margin="50px 0">
+        {(Object.keys(TAB_TYPE) as Array<keyof typeof TAB_TYPE>).map((key) => (
+          <Tab
+            key={key}
+            fontSize="1.17em"
+            selected={selectedPageTab === TAB_TYPE[key]}
+            onClick={() => setSelectedPageTab(TAB_TYPE[key])}
+          >
+            {key}
+          </Tab>
+        ))}
+      </Tabs>
+      <SubTitle subTitle={`My ${selectedPageTab}`} />
       <HorizontalDivider />
-      <SubTitle subTitle="My NFTs" textAlign="left" />
-      <MyNftsHeader>
-        <MyNftsTabs>
-          {(Object.keys(NFT_TYPE) as Array<keyof typeof NFT_TYPE>).map(
-            (key) => (
-              <MyNftsTab
-                key={key}
-                selected={selectedTab === NFT_TYPE[key]}
-                onClick={() => setSelectedTab(NFT_TYPE[key])}
-              >{`${NFT_TYPE[key]} (${
-                myNfts[NFT_TYPE[key]].length || 0
-              })`}</MyNftsTab>
-            )
-          )}
-        </MyNftsTabs>
-        <SearchWrapper>
-          <SearchInputer onChange={handleChangeSearchValue} />
-        </SearchWrapper>
-      </MyNftsHeader>
-      <NFTContainer
-        nfts={myNfts[selectedTab]}
-        status={NFTItemStatus.SELL}
-        emptyMsg="No NFTs in your wallet"
-      />
+      {selectedPageTab === TAB_TYPE.ITEMS && (
+        <>
+          <MyNftsHeader>
+            <Tabs>
+              {(Object.keys(NFT_TYPE) as Array<keyof typeof NFT_TYPE>).map(
+                (key) => (
+                  <Tab
+                    key={key}
+                    selected={selectedNftTab === NFT_TYPE[key]}
+                    onClick={() => setSelectedNftTab(NFT_TYPE[key])}
+                  >{`${NFT_TYPE[key]} (${
+                    myNfts[NFT_TYPE[key]].length || 0
+                  })`}</Tab>
+                )
+              )}
+            </Tabs>
+            <SearchWrapper>
+              <SearchInputer onChange={handleChangeSearchValue} />
+            </SearchWrapper>
+          </MyNftsHeader>
+          <NFTContainer
+            nfts={myNfts[selectedNftTab]}
+            status={NFTItemStatus.SELL}
+            emptyMsg="No NFTs in your wallet"
+          />
+        </>
+      )}
+      {selectedPageTab === TAB_TYPE.ACTIVITY && (
+        <>
+          <ActivityList user={account?.address || "zzz"} />
+        </>
+      )}
       {/* <HorizontalDivider />
       <SubTitle subTitle="My NFTs on sale" textAlign="left" />
       <NFTContainer
