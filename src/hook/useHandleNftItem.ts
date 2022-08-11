@@ -40,7 +40,6 @@ const useHandleNftItem = () => {
         toast.error("Invalid Price!");
         return;
       }
-      
       if (!TokenType) {
         toast.error("Select Price Type!");
         return;
