@@ -339,7 +339,10 @@ const NFTItemDetail: React.FC<NFTItemDetailProps> = ({ item }) => {
                       }),
                     }}
                     onChange={handleChangePriceType}
-                    options={SelectOptions}
+                    options={SelectOptions.map((option) => ({
+                      ...option,
+                      label: option.text,
+                    }))}
                   />
                 </NFTItemPriceType>
               </div>
