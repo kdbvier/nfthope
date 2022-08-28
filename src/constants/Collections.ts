@@ -74,7 +74,7 @@ export enum CollectionIds {
   BORED3D = "bored3d",
   GORILLA = "gorilla",
   LUNATICS = "lunatic",
-  BEARS = "bears",
+  // BEARS = "bears",
 }
 
 const Collections: MarketplaceInfo[] = [
