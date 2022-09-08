@@ -33,7 +33,7 @@ const useHandleNftItem = () => {
       const regExp = /^(\d+(\.\d+)?)$/;
       const price = +nftPrice;
       if (!item.collectionId || !targetCollection) {
-        toast.error("Collection Not Found!");
+        toast.error("Collection not found!");
         return;
       }
       if (!(price > 0 && regExp.test(nftPrice))) {
